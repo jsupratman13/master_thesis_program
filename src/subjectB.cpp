@@ -77,7 +77,7 @@ SubjectB::SubjectB(QWidget *parent) : QWidget(parent), nh(), num_answers(0)
     stacked_widget = new QStackedWidget;
     questionnaire_index = stacked_widget->addWidget(questionnaire_widget);    
     info_index = stacked_widget->addWidget(info_widget);
-    stacked_widget->setCurrentIndex(questionnaire_index);
+    stacked_widget->setCurrentIndex(info_index);
     QVBoxLayout *main_layer = new QVBoxLayout;
     main_layer->addWidget(stacked_widget);
 
@@ -91,14 +91,16 @@ void
 SubjectB::responseCallback(const std_msgs::Int32::ConstPtr &msg)
 {
     if(msg->data){
-        if(msg->data == ANSWER)
+        if(msg->data == ANSWER){
             stacked_widget->setCurrentIndex(questionnaire_index);
-        else
+            info_label->setText("Please Wait");
+        }else{
             stacked_widget->setCurrentIndex(info_index);
             if(msg->data == PLEASE_WAIT)
                 info_label->setText("Please Wait");
             else if(msg->data == READY)
                 info_label->setText("Ready");
+        }
     }
 }
 
@@ -115,6 +117,7 @@ SubjectB::sendReady(){
             pub_answers.publish(data);
             answers.clear();
             num_answers = 0;
+            stacked_widget->setCurrentIndex(info_index);
         }
         QAbstractButton *checked = button_group->checkedButton();
         button_group->setExclusive(false);

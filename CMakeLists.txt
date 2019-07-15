@@ -47,3 +47,6 @@ target_link_libraries(subjectB ${catkin_LIBRARIES} ${QT_LIBRARIES})
 
 add_executable(subjectA src/subjectA.cpp)
 target_link_libraries(subjectA ${catkin_LIBRARIES} ${QT_LIBRARIES})
+
+add_executable(control src/control.cpp)
+target_link_libraries(control ${catkin_LIBRARIES} ${QT_LIBRARIES})

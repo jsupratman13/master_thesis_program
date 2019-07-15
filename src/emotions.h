@@ -1,14 +1,15 @@
 #include <iostream>
 
 enum{
-    ANGER     = 1,
-    FEAR      = 2,
-    DISGUST   = 3,
-    SAD       = 4,
-    HAPPY     = 5,
-    GRATITUDE = 6,
-    SYMPATHY  = 7,
-    LOVE      = 8,
+    NO_EMOTION = 0,
+    ANGER      = 1,
+    FEAR       = 2,
+    DISGUST    = 3,
+    SAD        = 4,
+    HAPPY      = 5,
+    GRATITUDE  = 6,
+    SYMPATHY   = 7,
+    LOVE       = 8,
 };
 
 struct EmotionInfo
