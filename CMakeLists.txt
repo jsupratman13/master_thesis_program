@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Answers.msg
+  Info.msg
 )
 
 generate_messages(
@@ -41,5 +42,8 @@ include_directories(
 #add_executable(user_interface src/gui.cpp src/demo.cpp src/motion_creator.cpp src/cartesian_control.cpp src/joint_control.cpp)
 #target_link_libraries(user_interface ${catkin_LIBRARIES} ${QT_LIBRARIES})
 
-add_executable(demo src/rostest.cpp src/subjectB.cpp)
-target_link_libraries(demo ${catkin_LIBRARIES} ${QT_LIBRARIES})
+add_executable(subjectB src/subjectB.cpp)
+target_link_libraries(subjectB ${catkin_LIBRARIES} ${QT_LIBRARIES})
+
+add_executable(subjectA src/subjectA.cpp)
+target_link_libraries(subjectA ${catkin_LIBRARIES} ${QT_LIBRARIES})

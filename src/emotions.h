@@ -22,7 +22,7 @@ struct EmotionInfo
 
 struct Emotions
 {
-    std::vector<std::string> name = {"anger", "fear", "disgust", "sad", "happy", "gratitude", "sympathy", "love"};
+    std::vector<std::string> name = {"","anger", "fear", "disgust", "sad", "happy", "gratitude", "sympathy", "love"};
     std::vector<EmotionInfo> info;
 };
 

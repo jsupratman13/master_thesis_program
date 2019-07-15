@@ -3,6 +3,7 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/Int32.h>
 
+#include <QApplication>
 #include <QWidget>
 #include <QStackedWidget>
 #include <QLabel>
@@ -83,7 +84,7 @@ SubjectB::SubjectB(QWidget *parent) : QWidget(parent), nh(), num_answers(0)
     setLayout(main_layer);
 
     pub_answers = nh.advertise<master_thesis_program::Answers>("/subjectB/answers", 1);
-    sub_response = nh.subscribe("/subjectB/response", 1, &SubjectB::responseCallback, this);
+    sub_response = nh.subscribe("/subjectB/info", 1, &SubjectB::responseCallback, this);
 }
 
 void
@@ -128,3 +129,24 @@ void
 SubjectB::enableConfirm(){
     confirm_button->setEnabled(true);
 }
+
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, "subjectB");
+    QApplication app(argc, argv);
+    QWidget *window = new QWidget;
+    QHBoxLayout *layout = new QHBoxLayout;
+    
+    SubjectB *subjectB_app = new SubjectB(window);
+    layout->addWidget(subjectB_app);
+    window->setLayout(layout);
+    window->show();
+
+    ros::Rate rate(20);
+    while(ros::ok()){
+        ros::spinOnce();
+        app.processEvents();
+        rate.sleep();
+    }
+}
+
