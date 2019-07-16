@@ -15,19 +15,23 @@
 #include <QCheckBox>
 #include <QVBoxLayout>
 #include <QRadioButton>
-#include <QGroupBox>
-#include <QButtonGroup>
+#include <QSpinBox>
 #include <iostream>
+#include <fstream>
 
 class Control : public QWidget
 {
     Q_OBJECT
     public:
         Control(QWidget *parent=0);
+        std::ofstream ex_result;
+        std::ofstream ex_data;
+        std::ofstream ex_info;
 
     protected:
         ros::NodeHandle nh;
         ros::Publisher pub_subjectA;
+        ros::Publisher pub_record;
         ros::Publisher pub_subjectB;
         ros::Subscriber sub_subjectB;
         Emotions emotion_data;
@@ -43,7 +47,8 @@ class Control : public QWidget
         int current_emotion_index;
         std::vector<int> emotion_list = {1,2,3,4,5,6,7,8};
         geometry_msgs::WrenchStamped sensor_data;
-        
+       
+        QSpinBox *ex_no;
         QLabel *info_label;
         QLabel *current_emotion_label;
         QLineEdit *subjectA_name_edit;

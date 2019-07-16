@@ -1,6 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <ros/ros.h>
-#include <std_msgs/Bool.h>
+#include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
 
 #include <QApplication>
@@ -22,7 +23,15 @@ Control::Control(QWidget *parent) : QWidget(parent), nh(), current_emotion(0), c
 {
 
     QVBoxLayout *main_layer = new QVBoxLayout;
-   
+
+    QHBoxLayout *experiment_number_layer = new QHBoxLayout;
+    QLabel *ex_no_label = new QLabel("experiment no");
+    ex_no = new QSpinBox;
+    ex_no->setRange(1, 100);
+    experiment_number_layer->addWidget(ex_no_label);
+    experiment_number_layer->addWidget(ex_no);
+    main_layer->addLayout(experiment_number_layer);
+
     QHBoxLayout *subjectA_layer = new QHBoxLayout;
     QLabel *subjectA_label = new QLabel("subjectA name");
     subjectA_name_edit = new QLineEdit;
@@ -66,6 +75,7 @@ Control::Control(QWidget *parent) : QWidget(parent), nh(), current_emotion(0), c
     setLayout(main_layer);
 
     pub_subjectA = nh.advertise<master_thesis_program::Info>("/subjectA/info", 1);
+    pub_record   = nh.advertise<std_msgs::String>("/subjectA/record_device", 1);
     pub_subjectB = nh.advertise<std_msgs::Int32>("/subjectB/info", 1);
     sub_subjectB = nh.subscribe("/subjectB/answers", 1, &Control::answerCallback, this);
 }
@@ -77,13 +87,25 @@ Control::newSubjectsSignal()
     std::string subjectB_name = subjectB_name_edit->text().toStdString();
     if((subjectA_name != "") && (subjectB_name != "")){
         current_emotion_index = 0;
+
+        ex_no->setEnabled(false);
         applyToPersonButton->setEnabled(true);
         newButton->setEnabled(false);
+
         std::random_shuffle(emotion_list.begin(), emotion_list.end());
         current_emotion = emotion_list[current_emotion_index];
         current_emotion_label->setText(QString::fromStdString(emotion_data.name[current_emotion]));
         current_emotion_index++;
-        //TODO: save name to file
+
+        ex_result.open("ex" + std::to_string(ex_no->value()) + "_result.csv");
+        ex_result << "target emotion, 1st guess, 2nd guess, 3rd guess" << std::endl;
+
+        ex_info.open("ex" + std::to_string(ex_no->value()) + "_info.csv");
+        ex_info << "experiment id, subjectA, subjectB" << std::endl;
+        ex_info << std::to_string(ex_no->value()) << ",";
+        ex_info << subjectA_name << "," << subjectB_name << std::endl;
+        ex_info.close();
+
     }else{
         info_label->setText("add subject name");
         current_emotion_label->setText("");
@@ -104,6 +126,10 @@ Control::nextSignal()
 
     nextButton->setEnabled(false);
     if(current_emotion_index >= emotion_list.size()){
+        ex_result.close();
+
+        ex_no->setValue(ex_no->value() + 1);
+        ex_no->setEnabled(true);
         newButton->setEnabled(true);
         applyToPersonButton->setEnabled(false);
         applyToDeviceButton->setEnabled(false);
@@ -151,34 +177,10 @@ Control::applyToDeviceSignal()
 
     applyToDeviceButton->setEnabled(false);
 
-    //TODO check if device open
-    //ros::Rate rate(10);
-    //ros::Time begin = ros::Time::now();
-    //while((ros::Time::now().toSec() - begin.toSec()) < 10){
-    //    recordData();
-    //    rate.sleep();
-    //}
     info_label->setText("wait for info");
-}
-
-void
-Control::recordData()
-{
-    int seq = sensor_data.header.seq;
-    float force_x = sensor_data.wrench.force.x;
-    float force_y = sensor_data.wrench.force.y;
-    float force_z = sensor_data.wrench.force.z;
-    float torque_x = sensor_data.wrench.torque.x;
-    float torque_y = sensor_data.wrench.torque.y;
-    float torque_z = sensor_data.wrench.torque.z;
-    //TODO write to file
-}
-
-void
-Control::sensorCallback(const geometry_msgs::WrenchStamped::ConstPtr &msg)
-{
-    sensor_data.header = msg->header;
-    sensor_data.wrench = msg->wrench;
+    std_msgs::String data;
+    data.data = "ex" + std::to_string(ex_no->value()) + "_" + emotion_data.name[current_emotion] + ".csv";
+    pub_record.publish(data);
 }
 
 void
@@ -191,7 +193,10 @@ Control::answerCallback(const master_thesis_program::Answers::ConstPtr &msg)
     int third_guess = msg->third_guess;
 
     //TODO: save result to file, target, 1st estimate, 2nd estimate, 3rd estimate
-    //make sure answer is obtained before any going to next experiment
+    ex_result << std::to_string(current_emotion) << ",";
+    ex_result << std::to_string(first_guess) << ",";
+    ex_result << std::to_string(second_guess) << ",";
+    ex_result << std::to_string(third_guess) << std::endl;
 }
 
 int main(int argc, char **argv)
