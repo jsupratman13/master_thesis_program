@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find leptrino_force_torque)/launch/contact_device.launch" />
+    <node pkg="master_thesis_program" type="constant_rate.py" name="constant_rate" output="screen" />
+</launch>
