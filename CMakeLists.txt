@@ -36,12 +36,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-#add_library(${PROJECT_NAME} src/panel.cpp src/demo.cpp src/motion_creator.cpp src/cartesian_control.cpp src/joint_control.cpp)
-#target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${QT_LIBRARIES})
-
-#add_executable(user_interface src/gui.cpp src/demo.cpp src/motion_creator.cpp src/cartesian_control.cpp src/joint_control.cpp)
-#target_link_libraries(user_interface ${catkin_LIBRARIES} ${QT_LIBRARIES})
-
 add_executable(subjectB src/subjectB.cpp)
 target_link_libraries(subjectB ${catkin_LIBRARIES} ${QT_LIBRARIES})
 
