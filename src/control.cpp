@@ -19,7 +19,7 @@
 #include "master_thesis_program/Info.h"
 #include "control.h"
 
-Control::Control(QWidget *parent) : QWidget(parent), nh(), current_emotion(0), current_emotion_index(0)
+Control::Control(QWidget *parent) : QWidget(parent), nh(), current_emotion(0), current_emotion_index(0), subjectA_finished(false), subjectB_finished(false)
 {
 
     QVBoxLayout *main_layer = new QVBoxLayout;
@@ -58,25 +58,34 @@ Control::Control(QWidget *parent) : QWidget(parent), nh(), current_emotion(0), c
     main_layer->addWidget(current_emotion_label);
 
     applyToPersonButton = new QPushButton("apply person");
-    applyToDeviceButton = new QPushButton("apply device");
-    nextButton = new QPushButton("next");
-    applyToPersonButton->setEnabled(false);
-    applyToDeviceButton->setEnabled(false);
-    nextButton->setEnabled(false);
     main_layer->addWidget(applyToPersonButton);
-    main_layer->addWidget(applyToDeviceButton);
+    applyToPersonButton->setEnabled(false);
+    
+    QHBoxLayout *device_layer = new QHBoxLayout;
+    applyToDeviceButton = new QPushButton("apply device");
+    applyToDeviceButton->setEnabled(false);
+    device_layer->addWidget(applyToDeviceButton);
+    retryDeviceButton = new QPushButton("retry device");
+    retryDeviceButton->setEnabled(false);
+    device_layer->addWidget(retryDeviceButton);
+    main_layer->addLayout(device_layer);
+
+    nextButton = new QPushButton("next");
+    nextButton->setEnabled(false);
     main_layer->addWidget(nextButton);
 
     connect(newButton, SIGNAL(clicked()), this, SLOT(newSubjectsSignal()));
     connect(nextButton, SIGNAL(clicked()), this, SLOT(nextSignal()));
     connect(applyToPersonButton, SIGNAL(clicked()), this, SLOT(applyToPersonSignal()));
     connect(applyToDeviceButton, SIGNAL(clicked()), this, SLOT(applyToDeviceSignal()));
+    connect(retryDeviceButton, SIGNAL(clicked()), this, SLOT(retryDeviceSignal()));
     
     setLayout(main_layer);
 
     pub_subjectA = nh.advertise<master_thesis_program::Info>("/subjectA/info", 1);
     pub_record   = nh.advertise<std_msgs::String>("/subjectA/record_device", 1);
     pub_subjectB = nh.advertise<std_msgs::Int32>("/subjectB/info", 1);
+    sub_subjectA = nh.subscribe("/subjectA/response_device", 1, &Control::sensorCallback, this);
     sub_subjectB = nh.subscribe("/subjectB/answers", 1, &Control::answerCallback, this);
 }
 
@@ -97,10 +106,10 @@ Control::newSubjectsSignal()
         current_emotion_label->setText(QString::fromStdString(emotion_data.name[current_emotion]));
         current_emotion_index++;
 
-        ex_result.open("ex" + std::to_string(ex_no->value()) + "_result.csv");
+        ex_result.open(path + "ex" + std::to_string(ex_no->value()) + "_result.csv");
         ex_result << "target emotion, 1st guess, 2nd guess, 3rd guess" << std::endl;
 
-        ex_info.open("ex" + std::to_string(ex_no->value()) + "_info.csv");
+        ex_info.open(path + "ex" + std::to_string(ex_no->value()) + "_info.csv");
         ex_info << "experiment id, subjectA, subjectB" << std::endl;
         ex_info << std::to_string(ex_no->value()) << ",";
         ex_info << subjectA_name << "," << subjectB_name << std::endl;
@@ -115,6 +124,9 @@ Control::newSubjectsSignal()
 void
 Control::nextSignal()
 {
+    subjectA_finished = false;
+    subjectB_finished = false;
+
     std_msgs::Int32 dataB;
     dataB.data = PLEASE_WAIT;
     pub_subjectB.publish(dataB);
@@ -141,8 +153,6 @@ Control::nextSignal()
     current_emotion = emotion_list[current_emotion_index];
     current_emotion_label->setText(QString::fromStdString(emotion_data.name[current_emotion]));
     current_emotion_index++;
-
-    //TODO save target emotion to file
 }
 
 void
@@ -177,22 +187,54 @@ Control::applyToDeviceSignal()
 
     applyToDeviceButton->setEnabled(false);
 
-    info_label->setText("wait for info");
     std_msgs::String data;
     data.data = "ex" + std::to_string(ex_no->value()) + "_" + emotion_data.name[current_emotion] + ".csv";
     pub_record.publish(data);
 }
 
 void
+Control::retryDeviceSignal()
+{
+    info_label->setText("retry");
+    master_thesis_program::Info dataA;
+    dataA.state = APPLY_FORCE_TO_DEVICE;
+    dataA.emotion = current_emotion;
+    pub_subjectA.publish(dataA);
+
+    retryDeviceButton->setEnabled(false);
+
+    std_msgs::String data;
+    data.data = "ex" + std::to_string(ex_no->value()) + "_" + emotion_data.name[current_emotion] + ".csv";
+    pub_record.publish(data);
+}
+
+void
+Control::sensorCallback(const std_msgs::Bool::ConstPtr &msg)
+{
+    subjectA_finished = msg->data;
+    if(subjectA_finished && subjectB_finished){
+        info_label->setText("receive data");
+        nextButton->setEnabled(true);
+    }
+    else if(!subjectA_finished){
+        info_label->setText("device failed retry");
+        retryDeviceButton->setEnabled(true);
+    }
+}
+
+void
 Control::answerCallback(const master_thesis_program::Answers::ConstPtr &msg)
 {
-    nextButton->setEnabled(true);
+    subjectB_finished = true;
+    if(subjectA_finished && subjectB_finished){
+        nextButton->setEnabled(true);
+    }
+
     info_label->setText("receive answers");
     int first_guess = msg->first_guess;
     int second_guess = msg->second_guess;
     int third_guess = msg->third_guess;
 
-    //TODO: save result to file, target, 1st estimate, 2nd estimate, 3rd estimate
     ex_result << std::to_string(current_emotion) << ",";
     ex_result << std::to_string(first_guess) << ",";
     ex_result << std::to_string(second_guess) << ",";

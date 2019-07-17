@@ -1,7 +1,8 @@
 #ifndef Q_MOC_RUN
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <std_msgs/Int32.h>
-#include <geometry_msgs/WrenchStamped.h>
+#include <std_msgs/Bool.h>
 #include "emotions.h"
 #include "experiment_signals.h"
 #include "master_thesis_program/Answers.h"
@@ -25,14 +26,15 @@ class Control : public QWidget
     public:
         Control(QWidget *parent=0);
         std::ofstream ex_result;
-        std::ofstream ex_data;
         std::ofstream ex_info;
+        std::string path = ros::package::getPath("master_thesis_program") + "/data/";
 
     protected:
         ros::NodeHandle nh;
         ros::Publisher pub_subjectA;
-        ros::Publisher pub_record;
         ros::Publisher pub_subjectB;
+        ros::Publisher pub_record;
+        ros::Subscriber sub_subjectA;
         ros::Subscriber sub_subjectB;
         Emotions emotion_data;
 
@@ -40,13 +42,16 @@ class Control : public QWidget
         void nextSignal();
         void applyToPersonSignal();
         void applyToDeviceSignal();
+        void retryDeviceSignal();
         void newSubjectsSignal();
 
     private:
+        bool subjectA_finished;
+        bool subjectB_finished;
+
         int current_emotion;
         int current_emotion_index;
         std::vector<int> emotion_list = {1,2,3,4,5,6,7,8};
-        geometry_msgs::WrenchStamped sensor_data;
        
         QSpinBox *ex_no;
         QLabel *info_label;
@@ -57,9 +62,10 @@ class Control : public QWidget
         QPushButton *nextButton;
         QPushButton *applyToPersonButton;
         QPushButton *applyToDeviceButton;
+        QPushButton *retryDeviceButton;
         
         void answerCallback(const master_thesis_program::Answers::ConstPtr &msg);
-        void sensorCallback(const geometry_msgs::WrenchStamped::ConstPtr &msg);
+        void sensorCallback(const std_msgs::Bool::ConstPtr &msg);
         void recordData();
 };
 
