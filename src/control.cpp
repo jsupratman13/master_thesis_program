@@ -138,13 +138,18 @@ Control::nextSignal()
 
     nextButton->setEnabled(false);
     if(current_emotion_index >= emotion_list.size()){
-        ex_result.close();
+        try{
+            ex_result.close();
+        } catch(std::exception &e){
+            std::cout << e.what() << std::endl;
+        }
 
         ex_no->setValue(ex_no->value() + 1);
         ex_no->setEnabled(true);
         newButton->setEnabled(true);
         applyToPersonButton->setEnabled(false);
         applyToDeviceButton->setEnabled(false);
+
     }else{
         applyToPersonButton->setEnabled(true);
         applyToDeviceButton->setEnabled(false);

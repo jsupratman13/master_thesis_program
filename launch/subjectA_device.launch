@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-    <include file="$(find leptrino_force_torque)/launch/contact_device.launch" />
+    <arg name="port" default="/dev/ttyACM0" />
+    <include file="$(find leptrino_force_torque)/launch/contact_device.launch">
+        <arg name="comport" value="$(arg port)" />
+    </include>
     <node pkg="master_thesis_program" type="constant_rate.py" name="constant_rate" output="screen" />
 </launch>
