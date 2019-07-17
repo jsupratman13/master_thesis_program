@@ -240,10 +240,10 @@ Control::answerCallback(const master_thesis_program::Answers::ConstPtr &msg)
     int second_guess = msg->second_guess;
     int third_guess = msg->third_guess;
 
-    ex_result << std::to_string(current_emotion) << ",";
-    ex_result << std::to_string(first_guess) << ",";
-    ex_result << std::to_string(second_guess) << ",";
-    ex_result << std::to_string(third_guess) << std::endl;
+    ex_result << emotion_data.name[current_emotion] << ",";
+    ex_result << emotion_data.name[first_guess] << ","; 
+    ex_result << emotion_data.name[second_guess] << ",";
+    ex_result << emotion_data.name[third_guess] << std::endl;
 }
 
 int main(int argc, char **argv)
