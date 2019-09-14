@@ -7,9 +7,9 @@ enum{
     DISGUST    = 3,
     SAD        = 4,
     HAPPY      = 5,
-    GRATITUDE  = 6,
-    SYMPATHY   = 7,
-    LOVE       = 8,
+    //GRATITUDE  = 6,
+    //SYMPATHY   = 7,
+    //LOVE       = 8,
 };
 
 struct EmotionInfo
@@ -23,7 +23,16 @@ struct EmotionInfo
 
 struct Emotions
 {
-    std::vector<std::string> name = {"","anger", "fear", "disgust", "sad", "happy", "gratitude", "sympathy", "love"};
+    std::vector<std::string> name = {"",
+                                     "anger", 
+                                     "fear", 
+                                     "disgust", 
+                                     "sad", 
+                                     "happy", 
+                                     //"gratitude", 
+                                     //"sympathy", 
+                                     //"love"
+                                     };
     std::vector<EmotionInfo> info;
 };
 
