@@ -33,6 +33,13 @@ struct Emotions
                                      //"sympathy", 
                                      //"love"
                                      };
+    std::vector<std::string> nameJP = {"",
+                                     "怒る", 
+                                     "怖がる", 
+                                     "嫌悪する", 
+                                     "悲しむ", 
+                                     "楽しい",
+                                     };
     std::vector<EmotionInfo> info;
 };
 

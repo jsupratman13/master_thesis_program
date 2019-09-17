@@ -22,17 +22,25 @@
 
 SubjectB::SubjectB(QWidget *parent) : QWidget(parent), nh(), num_answers(0)
 {
+    QFont fonts("Arial", 40);
+
     QWidget *questionnaire_widget = new QWidget;
     QVBoxLayout *questionnaire_layer = new QVBoxLayout;
     questionnaire_label = new QLabel("1 guess");
+    questionnaire_label->setFont(QFont("Arial", 20));
     questionnaire_label->setAlignment(Qt::AlignCenter);
     questionnaire_layer->addWidget(questionnaire_label);
-    anger_radio = new QRadioButton("anger");
-    fear_radio = new QRadioButton("fear");
-    disgust_radio = new QRadioButton("disgust");
-    sad_radio = new QRadioButton("sad");
+    anger_radio = new QRadioButton("怒っている");
+    anger_radio->setFont(fonts);
+    fear_radio = new QRadioButton("怖がっている");
+    fear_radio->setFont(fonts);
+    disgust_radio = new QRadioButton("嫌悪している");
+    disgust_radio->setFont(fonts);
+    sad_radio = new QRadioButton("悲しい");
+    sad_radio->setFont(fonts);
     //sympathy_radio = new QRadioButton("sympathy");
-    happy_radio = new QRadioButton("happy");
+    happy_radio = new QRadioButton("楽しい");
+    happy_radio->setFont(fonts);
     //gratitude_radio = new QRadioButton("gratitude");
     //love_radio = new QRadioButton("love");
     questionnaire_layer->addWidget(anger_radio);
@@ -69,8 +77,10 @@ SubjectB::SubjectB(QWidget *parent) : QWidget(parent), nh(), num_answers(0)
 
     QWidget *info_widget = new QWidget;
     QVBoxLayout *info_layer = new QVBoxLayout;
-    info_label = new QLabel("Please Wait");
+    //info_label = new QLabel("Please Wait");
+    info_label = new QLabel("少し待ってください");
     info_label->setAlignment(Qt::AlignCenter);
+    info_label->setFont(fonts);
     info_layer->addWidget(info_label);
     info_widget->setLayout(info_layer);
     
@@ -93,13 +103,16 @@ SubjectB::responseCallback(const std_msgs::Int32::ConstPtr &msg)
     if(msg->data){
         if(msg->data == ANSWER){
             stacked_widget->setCurrentIndex(questionnaire_index);
-            info_label->setText("Please Wait");
+            //info_label->setText("Please Wait");
+            info_label->setText("少し待ってください");
         }else{
             stacked_widget->setCurrentIndex(info_index);
             if(msg->data == PLEASE_WAIT)
-                info_label->setText("Please Wait");
+                //info_label->setText("Please Wait");
+                info_label->setText("少し待ってください");
             else if(msg->data == READY)
-                info_label->setText("Ready");
+                //info_label->setText("Ready");
+                info_label->setText("力を加えます");
         }
     }
 }

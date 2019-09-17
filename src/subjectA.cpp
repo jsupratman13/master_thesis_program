@@ -20,13 +20,17 @@
 
 SubjectA::SubjectA(QWidget *parent) : QWidget(parent), nh()
 {
+    QFont fonts("Arial", 40);
 
     QWidget *info_widget = new QWidget;
     QVBoxLayout *info_layer = new QVBoxLayout;
-    info_label = new QLabel("Please Wait");
+    //info_label = new QLabel("Please Wait");
+    info_label = new QLabel("少し待ってください");
     info_label->setAlignment(Qt::AlignCenter);
+    info_label->setFont(fonts);
     emotion_label = new QLabel("");
     emotion_label->setAlignment(Qt::AlignCenter);
+    emotion_label->setFont(fonts);
 
     info_layer->addWidget(info_label);
     info_layer->addWidget(emotion_label);
@@ -44,17 +48,18 @@ SubjectA::infoCallback(const master_thesis_program::Info::ConstPtr &msg)
     int emotion = msg->emotion;
     switch(state){
         case APPLY_FORCE_TO_PERSON:
-            info_label->setText("Apply Force To Person");
+            //info_label->setText("Apply Force To Person");
+            info_label->setText("人の肩に力を加えてください");
             break;
         case APPLY_FORCE_TO_DEVICE:
-            info_label->setText("Apply Force To Device");
+            info_label->setText("半球に力を加えてください");
             break;
         default:
-            info_label->setText("Please Wait");
+            info_label->setText("少し待ってください");
             break;
     }
     if(emotion){
-        emotion_label->setText(QString::fromStdString(emotion_data.name[emotion]));
+        emotion_label->setText(QString::fromStdString(emotion_data.nameJP[emotion]));
     }else{
         emotion_label->setText("");
     }
