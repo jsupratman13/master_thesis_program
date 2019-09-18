@@ -38,36 +38,29 @@ SubjectB::SubjectB(QWidget *parent) : QWidget(parent), nh(), num_answers(0)
     disgust_radio->setFont(fonts);
     sad_radio = new QRadioButton("悲しい");
     sad_radio->setFont(fonts);
-    //sympathy_radio = new QRadioButton("sympathy");
     happy_radio = new QRadioButton("楽しい");
     happy_radio->setFont(fonts);
-    //gratitude_radio = new QRadioButton("gratitude");
-    //love_radio = new QRadioButton("love");
+    none_of_above_radio = new QRadioButton("どれでもない");
+    none_of_above_radio->setFont(fonts);
     questionnaire_layer->addWidget(anger_radio);
     questionnaire_layer->addWidget(fear_radio);
     questionnaire_layer->addWidget(disgust_radio);
     questionnaire_layer->addWidget(sad_radio);
-    //questionnaire_layer->addWidget(sympathy_radio);
     questionnaire_layer->addWidget(happy_radio);
-    //questionnaire_layer->addWidget(gratitude_radio);
-    //questionnaire_layer->addWidget(love_radio);
+    questionnaire_layer->addWidget(none_of_above_radio);
     button_group = new QButtonGroup;
     button_group->addButton(anger_radio);
     button_group->addButton(fear_radio);
     button_group->addButton(disgust_radio);
     button_group->addButton(sad_radio);
-    //button_group->addButton(sympathy_radio);
     button_group->addButton(happy_radio);
-    //button_group->addButton(gratitude_radio);
-    //button_group->addButton(love_radio);
+    button_group->addButton(none_of_above_radio);
     button_group->setId(anger_radio, ANGER);
     button_group->setId(fear_radio, FEAR);
     button_group->setId(disgust_radio, DISGUST);
     button_group->setId(sad_radio, SAD);
-    //button_group->setId(sympathy_radio, SYMPATHY);
     button_group->setId(happy_radio, HAPPY);
-    //button_group->setId(gratitude_radio, GRATITUDE);
-    //button_group->setId(love_radio, LOVE);
+    button_group->setId(none_of_above_radio, UNKNOWN);
     confirm_button = new QPushButton("confirm");
     confirm_button->setEnabled(false);
     questionnaire_layer->addWidget(confirm_button);
@@ -120,24 +113,48 @@ SubjectB::responseCallback(const std_msgs::Int32::ConstPtr &msg)
 void 
 SubjectB::sendReady(){
     if(button_group->checkedId() > 0){
-        answers.push_back(button_group->checkedId());
+        int guess = button_group->checkedId();
+        answers.push_back(guess);
         num_answers++;
+        if(guess == UNKNOWN){
+            for(int i=num_answers; i<3; i++){
+                answers.push_back(UNKNOWN);
+            }
+            num_answers = 4;
+        }
+
         if(num_answers >= 3){
             master_thesis_program::Answers data;
             data.first_guess = answers[0];
             data.second_guess = answers[1];
             data.third_guess = answers[2];
             pub_answers.publish(data);
-            answers.clear();
-            num_answers = 0;
+
             stacked_widget->setCurrentIndex(info_index);
+
+            QAbstractButton *answers0 = button_group->button(answers[0]);
+            QAbstractButton *answers1 = button_group->button(answers[1]);
+            QAbstractButton *checked = button_group->checkedButton();
+            button_group->setExclusive(false);
+            answers0->setEnabled(true);
+            answers1->setEnabled(true);
+            checked->setChecked(false);
+            button_group->setExclusive(true);
+
+            questionnaire_label->setText(QString::fromStdString(std::to_string(num_answers+1) + " guess"));
+            num_answers = 0;
+            answers.clear();
         }
-        QAbstractButton *checked = button_group->checkedButton();
-        button_group->setExclusive(false);
-        checked->setChecked(false);
-        button_group->setExclusive(true);
-        confirm_button->setEnabled(false);
-        questionnaire_label->setText(QString::fromStdString(std::to_string(num_answers+1) + " guess"));
+        else{
+
+            QAbstractButton *checked = button_group->checkedButton();
+            button_group->setExclusive(false);
+            checked->setChecked(false);
+            checked->setEnabled(false);
+            button_group->setExclusive(true);
+            confirm_button->setEnabled(false);
+            questionnaire_label->setText(QString::fromStdString(std::to_string(num_answers+1) + " guess"));
+        }
     }
 }
 

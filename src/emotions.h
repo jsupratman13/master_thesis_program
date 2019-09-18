@@ -7,6 +7,7 @@ enum{
     DISGUST    = 3,
     SAD        = 4,
     HAPPY      = 5,
+    UNKNOWN    = 6,
     //GRATITUDE  = 6,
     //SYMPATHY   = 7,
     //LOVE       = 8,
@@ -29,6 +30,7 @@ struct Emotions
                                      "disgust", 
                                      "sad", 
                                      "happy", 
+                                     "unknown", 
                                      //"gratitude", 
                                      //"sympathy", 
                                      //"love"

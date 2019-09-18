@@ -42,10 +42,11 @@ class SubjectB : public QWidget
         QRadioButton *fear_radio;
         QRadioButton *disgust_radio;
         QRadioButton *sad_radio;
-        QRadioButton *sympathy_radio;
+        //QRadioButton *sympathy_radio;
         QRadioButton *happy_radio;
-        QRadioButton *gratitude_radio;
-        QRadioButton *love_radio;
+        //QRadioButton *gratitude_radio;
+        //QRadioButton *love_radio;
+        QRadioButton *none_of_above_radio;
 
         QPushButton *confirm_button;
         void responseCallback(const std_msgs::Int32::ConstPtr &msg);

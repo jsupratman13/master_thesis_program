@@ -51,7 +51,7 @@ class Control : public QWidget
 
         int current_emotion;
         int current_emotion_index;
-        std::vector<int> emotion_list = {1,2,3,4,5,6,7,8};
+        std::vector<int> emotion_list = {1,2,3,4,5,1,2,3,4,5};
        
         QSpinBox *ex_no;
         QLabel *info_label;
