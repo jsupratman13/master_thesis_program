@@ -36,6 +36,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+add_executable(practice src/practice.cpp)
+target_link_libraries(practice ${catkin_LIBRARIES} ${QT_LIBRARIES})
+
 add_executable(subjectB src/subjectB.cpp)
 target_link_libraries(subjectB ${catkin_LIBRARIES} ${QT_LIBRARIES})
 
